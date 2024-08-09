@@ -1,0 +1,271 @@
+#include <iostream>
+
+using namespace std;
+template<class T>
+struct node
+{
+    T item;
+    node<T>* next;
+};
+template<class T>
+class CircularLinkedlist
+{
+    node<T> *first,*last;
+    int length;
+public:
+    CircularLinkedlist();
+    void InsertAtHead(const T data);
+    void InsertAtTail(const T);
+    void InsertAt(int position,const T);
+    void RemoveAtTail();
+    void RemoveAtHead();
+    void RemoveAt(int index);
+    void RepalceAt(const T,int index);
+    bool IsExist(T element);
+    bool IsItemAtEqual(const T,int index);
+    bool IsEmpty();
+    int LinkedListSize();
+    void Clear();
+    void Print();
+
+};
+template<class T>
+CircularLinkedlist<T>::CircularLinkedlist()
+{
+    first=last=NULL;
+    length=0;
+}
+template<class T>
+void CircularLinkedlist<T>::InsertAtHead(const T data)
+{
+    node<T>* newnode=new node<T>;
+    newnode->item=data;
+    if(length==0)
+    {
+        newnode->next==NULL;
+        first=newnode;
+        last=newnode;
+    }
+    else
+    {
+        newnode->next=first;
+        first=newnode;
+        last->next=newnode;
+    }
+    length++;
+
+}
+template<class T>
+void CircularLinkedlist<T>::InsertAtTail(const T data)
+{
+    node<T>* newnode=new node<T>;
+    newnode->item=data;
+    if(length==0)
+    {
+        newnode->next==NULL;
+        first=newnode;
+        last=newnode;
+    }
+    else
+    {
+        last->next=newnode;
+        newnode->next=first;
+        last=newnode;
+    }
+    length++;
+}
+template<class T>
+void CircularLinkedlist<T>::InsertAt(int position,const T data)
+{
+    node<T>* current=first;
+    node<T>* newnode=new node<T>;
+    newnode->item=data;
+    if(position<0||position>length)
+    {
+        cout<<"The position is out of the range"<<endl;
+    }
+    else if(position==0)
+    {
+        InsertAtHead(data);
+    }
+    else if(position==length)
+    {
+        InsertAtTail(data);
+    }
+    else
+    {
+        for(int i=1;i<position;i++)
+        {
+            current=current->next;
+        }
+        newnode->next=current->next;
+        current->next=newnode;
+        length++;
+    }
+}
+template<class T>
+void CircularLinkedlist<T>::RemoveAtHead()
+{
+    if(length==0)
+    {
+        cout<<"ERROR:empty list"<<endl;
+    }
+    else if(length==1)
+    {
+        delete first;
+        first=last=NULL;
+        length=0;
+    }
+    else
+    {
+        node<T>* temp=first;
+        first=first->next;
+        last->next=first;
+        delete temp;
+        length--;
+    }
+}
+template<class T>
+void CircularLinkedlist<T>::RemoveAtTail()
+{
+    if(length==0)
+    {
+        cout<<"ERROR:empty list"<<endl;
+    }
+    else if(length==1)
+    {
+        delete last;
+        first=last=NULL;
+        length=0;
+    }
+    else
+    {
+        node<T> *current=first;
+        while(current->next!=last)
+        {
+            current=current->next;
+        }
+        delete last;
+        current->next=first;
+        last=current;
+        length--;
+    }
+}
+template<class T>
+void CircularLinkedlist<T>::RemoveAt(int index)
+{
+    if(index<0||index>=length)
+    {
+        cout<<"The index is out of the range"<<endl;
+    }
+    else if(index==0)
+    {
+        RemoveAtHead();
+    }
+    else if(index==length-1)
+    {
+        RemoveAtTail();
+    }
+    else
+    {
+        node<T> *current=first->next;
+        node<T> *tailcurrent=first;
+        for(int i=1;i<index;i++)
+        {
+            tailcurrent=current;
+            current=current->next;
+        }
+        tailcurrent->next=current->next;
+        if(last==current)
+            last=tailcurrent;
+        delete current;
+        length--;
+    }
+}
+template<class T>
+void CircularLinkedlist<T>::RepalceAt(T data,int index)
+{
+    if(index<0||index>length)
+    {
+        cout<<"The index is out of the range"<<endl;
+    }
+    else{
+    node<T> *current=first;
+    for(int i=1;i<index;i++)
+    {
+        current=current->next;
+    }
+    current->item=data;
+    }
+}
+template<class T>
+bool CircularLinkedlist<T>::IsExist(T element)
+{
+    node<T> *current=first;
+    for(int i=1;i<=length;i++)
+    {
+        if(current->item==element)
+        {
+            return true;
+            break;
+        }
+        current=current->next;
+    }
+    return false;
+}
+template<class T>
+bool CircularLinkedlist<T>::IsItemAtEqual(T element,int index)
+{
+    node<T> *current=first;
+    for(int i=1;i<=index;i++)
+    {
+        current=current->next;
+    }
+    if(current->item==element)
+        return true;
+    else
+        return false;
+}
+template<class T>
+bool CircularLinkedlist<T>::IsEmpty()
+{
+    return length==0;
+}
+template<class T>
+int CircularLinkedlist<T>::LinkedListSize()
+{
+    return length;
+}
+template<class T>
+void CircularLinkedlist<T>::Clear()
+{
+    while(length>0)
+    {
+        RemoveAtHead();
+        length--;
+    }
+}
+template<class T>
+void CircularLinkedlist<T>::Print()
+{
+    node<T> *current=first;
+    int sz=0;
+    while(sz<length)
+    {
+        cout<<current->item<<" ";
+        current=current->next;
+        sz++;
+    }
+    cout<<endl;
+}
+int main()
+{
+    CircularLinkedlist<int>numbers;
+    numbers.InsertAtHead(10);
+    numbers.InsertAtHead(30);
+    numbers.InsertAtHead(60);
+    numbers.InsertAtHead(20);
+    numbers.RemoveAt(3);
+    numbers.Print();
+    return 0;
+}
