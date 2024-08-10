@@ -1,0 +1,267 @@
+#include <iostream>
+#include <string.h>
+
+using namespace std;
+
+template<class T>
+struct node
+{
+    T data;
+    node<T>* left;
+    node<T>* right;
+};
+template<class T>
+class AVL_Tree
+{
+private:
+    node<T> *root;
+    int N_items;
+    void InOrder(node<T> *p);
+    void PreOrder(node<T> *p);
+    void PostOrder(node<T> *p);
+public:
+    AVL_Tree();
+    bool IsEmpty();
+    void InOrderPublic();
+    void PreOrderPublic();
+    void PostOrderPublic();
+    void Clear(node<T> *p);
+    int Height(node<T> *p);
+    int LeavesCount(node<T> *p);
+    void Insert(T info);
+    void DeleteTheItem(node<T>* &p);
+    void Remove(T info);
+    int NodeCount();
+    ~AVL_Tree();
+};
+template<class T>
+AVL_Tree<T>::AVL_Tree()
+{
+    root=NULL;
+    N_items=0;
+}
+template<class T>
+void AVL_Tree<T>::InOrder(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        InOrder(p->left);
+        cout<<p->data<<" ";
+        InOrder(p->right);
+    }
+}
+template<class T>
+void AVL_Tree<T>::PreOrder(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        cout<<p->data<<" ";
+        PreOrder(p->left);
+        PreOrder(p->right);
+    }
+}
+template<class T>
+void AVL_Tree<T>::PostOrder(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        PostOrder(p->left);
+        PostOrder(p->right);
+        cout<<p->data<<" ";
+    }
+}
+template<class T>
+void AVL_Tree<T>::Clear(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        Clear(p->left);
+        Clear(p->right);
+        delete p;
+
+    }
+    p=NULL;
+}
+template<class T>
+int AVL_Tree<T>::Height(node<T> *p)
+{
+    if(p==NULL)
+        return 0;
+    else
+        return 1+max(Height(p->left),Height(p->right));
+}
+template<class T>
+int AVL_Tree<T>::LeavesCount(node<T> *p)
+{
+    if(p==NULL)
+    {
+        return 0;
+    }
+    else if((p->left==NULL)&&(p->right==NULL))
+    {
+        return 1;
+    }
+    else
+        return (LeavesCount(p->left)+LeavesCount(p->right));
+}
+template<class T>
+void AVL_Tree<T>::Insert(T info)
+{
+    node<T> *current;
+    node<T> *tailcurrent;
+    node<T> *newnode = new node<T>;
+    newnode->data=info;
+    newnode->left=NULL;
+    newnode->right=NULL;
+    bool f=false;
+    if(root==NULL)
+    {
+        root=newnode;
+    }
+    else
+    {
+        current=root;
+        while(current!=NULL)
+        {
+            tailcurrent=current;
+            if(current->data==info)
+            {
+                f=true;
+                cout<<"the item is already existed";
+                return;
+            }
+            else
+            {
+                if(current->data>info)
+                    current=current->left;
+                else
+                    current=current->right;
+            }
+        }
+        if(tailcurrent->data>info)
+            tailcurrent->left=newnode;
+        else
+            tailcurrent->right=newnode;
+    }
+    if(f==false)
+        N_items++;
+}
+template<class T>
+void AVL_Tree<T>::DeleteTheItem(node<T>* &p)
+{
+    node<T> *current;
+    node<T> *tailcurrent;
+    node<T> *temp;
+    if(p->left==NULL&&p->right==NULL)
+    {
+        delete p;
+        p=NULL;
+    }
+    else if(p->left==NULL)
+    {
+        temp=p;
+        p=p->right;
+        delete temp;
+    }
+    else if(p->right==NULL)
+    {
+        temp=p;
+        p=p->left;
+        delete temp;
+    }
+    else
+    {
+        current=p->left;
+        tailcurrent=NULL;
+        while(current->right!=NULL)
+        {
+            tailcurrent=current;
+            current=current->right;
+        }
+        p->data=current->data;
+        if(tailcurrent==NULL)
+            p->left=current->left;
+        else
+            tailcurrent->right=current->left;
+
+        delete current;
+    }
+    N_items--;
+}
+template<class T>
+void AVL_Tree<T>::Remove(T info)
+{
+    node<T> *current;
+    node<T> *tailcurrent;
+    if(root==NULL)
+    {
+        cout<<"can not delete as the tree is empty"<<endl;
+        return;
+    }
+    if(root->data==info)
+    {
+        DeleteTheItem(root);
+        return;
+    }
+    tailcurrent=root;
+    if(root->data>info)
+        current=current->left;
+    else
+        current=current->right;
+    while(current!=NULL)
+    {
+        tailcurrent=current;
+        if(current->data>info)
+            current=current->left;
+        else
+            current=current->right;
+
+    }
+    if(current==NULL)
+        cout<<"the item that you want to delete the item";
+    else if(tailcurrent->data>info)
+        DeleteTheItem(tailcurrent->left);
+    else
+        DeleteTheItem(tailcurrent->right);
+
+}
+template<class T>
+void AVL_Tree<T>::InOrderPublic()
+{
+    InOrder(root);
+}
+template<class T>
+void AVL_Tree<T>::PreOrderPublic()
+{
+    PreOrder(root);
+}
+template<class T>
+void AVL_Tree<T>::PostOrderPublic()
+{
+    PostOrder(root);
+}
+template<class T>
+int AVL_Tree<T>::NodeCount()
+{
+    return N_items;
+}
+template<class T>
+AVL_Tree<T>::~AVL_Tree()
+{
+    Clear(root);
+}
+int main()
+{
+    AVL_Tree<int>tree1;
+    tree1.Insert(10);
+    tree1.Insert(12);
+    tree1.Insert(1023);
+    tree1.Insert(34);
+    tree1.Insert(234);
+    tree1.Insert(265);
+    tree1.Insert(24);
+    tree1.Insert(25);
+    cout<<tree1.NodeCount()<<endl;
+    tree1.InOrderPublic();
+    return 0;
+}

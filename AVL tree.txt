@@ -1,0 +1,310 @@
+#include <iostream>
+#include <string.h>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+template<class T>
+class node
+{
+public:
+    T data;
+    node<T>* left;
+    node<T>* right;
+    int height;
+    node(T info): data(info),left(NULL),right(NULL),height(1){}
+};
+template<class T>
+class AVL_Tree
+{
+private:
+    node<T> *root;
+    int Height(node<T>* p);
+    int BalanceFactor(node<T>*P);
+    void InOrder(node<T> *p);
+    void PreOrder(node<T> *p);
+    void PostOrder(node<T> *p);
+    node<T>* RightRotation(node<T> *q);
+    node<T>* InsertHelper(node<T> *P,T info);
+    node<T>* LeftRotation(node<T> *p);
+    void Clear(node<T> *p);
+    T GetMaxNode(node<T> *p);
+    int LeavesCount(node<T> *p);
+    node<T>* DeleteTheItem(node<T> *p,T info);
+public:
+    AVL_Tree();
+    bool IsEmpty();
+    void InOrderPublic();
+    void PreOrderPublic();
+    void PostOrderPublic();
+    T GetMax();
+    void Insert(T info);
+    void Remove(T info);
+    void DisplayLevelOrder();
+    int GetLeavesCount();
+};
+template<class T>
+AVL_Tree<T>::AVL_Tree()
+{
+    root=NULL;
+}
+template<class T>
+int AVL_Tree<T>::GetLeavesCount()
+{
+    return LeavesCount(root);
+}
+template<class T>
+int AVL_Tree<T>::BalanceFactor(node<T>*p)
+{
+    if(p==NULL)
+        return 0;
+    else
+        return Height(p->left)-Height(p->right);
+}
+template<class T>
+int AVL_Tree<T>::Height(node<T>* p)
+{
+    if(p==NULL)
+        return 0;
+    else
+        return p->height;
+}
+template<class T>
+void AVL_Tree<T>::InOrder(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        InOrder(p->left);
+        cout<<p->data<<" ";
+        InOrder(p->right);
+    }
+}
+template<class T>
+node<T>* AVL_Tree<T>::RightRotation(node<T>*q)
+{
+    node<T> *p=q->left;
+    node<T> *y=p->right;
+    p->right=q;
+    q->left=y;
+    q->height=max(Height(q->left),Height(q->right))+1;
+    p->height=max(Height(p->left),Height(p->right))+1;
+    return p;
+}
+template<class T>
+node<T>* AVL_Tree<T>::LeftRotation(node<T>*p)
+{
+    node<T> *q=p->right;
+    node<T> *y=q->left;
+    q->left=p;
+    p->right=y;
+    p->height=max(Height(p->left),Height(p->right))+1;
+    q->height=max(Height(q->left),Height(q->right))+1;
+    return q;
+}
+template<class T>
+T AVL_Tree<T>::GetMax()
+{
+    T MaxValue=GetMaxNode(root);
+    return MaxValue;
+}
+template<class T>
+void AVL_Tree<T>::PreOrder(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        cout<<p->data<<" ";
+        PreOrder(p->left);
+        PreOrder(p->right);
+    }
+}
+template<class T>
+void AVL_Tree<T>::PostOrder(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        PostOrder(p->left);
+        PostOrder(p->right);
+        cout<<p->data<<" ";
+    }
+}
+template<class T>
+void AVL_Tree<T>::DisplayLevelOrder()
+{
+    if(root==NULL)
+        return;
+    queue<node<T>*>q;
+    q.push(root);
+    while(!q.empty())
+    {
+        node<T>* current=q.front();
+        q.pop();
+        cout<<current->data<<" ";
+        if(current->right!=NULL)
+            q.push(current->right);
+        if(current->left!=NULL)
+            q.push(current->left);
+    }
+    cout<<endl;
+}
+template<class T>
+void AVL_Tree<T>::Clear(node<T> *p)
+{
+    if(p!=NULL)
+    {
+        Clear(p->left);
+        Clear(p->right);
+        delete p;
+
+    }
+    p=NULL;
+}
+template<class T>
+T AVL_Tree<T>::GetMaxNode(node<T> *p)
+{
+    node<T> *current=p;
+    while(current->right!=NULL)
+        current=current->right;
+    return current->data;
+}
+template<class T>
+int AVL_Tree<T>::LeavesCount(node<T> *p)
+{
+    if(p==NULL)
+    {
+        return 0;
+    }
+    else if((p->left==NULL)&&(p->right==NULL))
+    {
+        return 1;
+    }
+    else
+        return (LeavesCount(p->left)+LeavesCount(p->right));
+}
+template<class T>
+void AVL_Tree<T>::Insert(T info)
+{
+    root=InsertHelper(root,info);
+}
+template<class T>
+node<T>* AVL_Tree<T>::InsertHelper(node<T> *p,T info)
+{
+    if(p==NULL)
+        return new node<T>(info);
+    if(info<p->data)
+        p->left=InsertHelper(p->left,info);
+    else if(info>p->data)
+        p->right=InsertHelper(p->right,info);
+    else
+        return p;
+    p->height=1+max(Height(p->left),Height(p->right));
+    int balance=BalanceFactor(p);
+
+    if(balance>1&&BalanceFactor(p->left)>=0)
+        return RightRotation(p);
+    if(balance>1&&BalanceFactor(p->left)<0)
+    {
+        p->left=LeftRotation(p->left);
+        return RightRotation(p);
+    }
+    if(balance<-1&&BalanceFactor(p->right)<=0)
+    {
+        return LeftRotation(p);
+    }
+    if(balance<-1&&BalanceFactor(p->right)>0)
+    {
+        p->right=RightRotation(p->right);
+        return LeftRotation(p);
+    }
+    return p;
+
+}
+template<class T>
+node<T>* AVL_Tree<T>::DeleteTheItem(node<T> *p,T info)
+{
+    if(p==NULL)
+        return p;
+    if(info>p->data)
+        p->right=DeleteTheItem(p->right,info);
+    else if(info<p->data)
+        p->left=DeleteTheItem(p->left,info);
+    else
+    {
+        if(p->left==NULL)
+        {
+            node<T> *temp=p->right;
+            delete p;
+            return temp;
+        }
+        else if(p->right==NULL)
+        {
+            node<T> *temp=p->left;
+            delete p;
+            return temp;
+        }
+        else
+        {
+            T maxvalue=this->GetMaxNode(p->left);
+            p->data=maxvalue;
+            p->left=DeleteTheItem(p->left,maxvalue);
+        }
+    }
+    if(p==NULL)
+        return p;
+    p->height=1+max(Height(p->left),Height(p->right));
+    int balance=BalanceFactor(p);
+    if(balance>1&&BalanceFactor(p->left)>=0)
+        return RightRotation(p);
+    if(balance>1&&BalanceFactor(p->left)<0)
+    {
+        p->left=LeftRotation(p->left);
+        return RightRotation(p);
+    }
+    if(balance<-1&&BalanceFactor(p->right)<=0)
+        return LeftRotation(p);
+    if(balance<-1&&BalanceFactor(p->right)>0)
+    {
+        p->right=RightRotation(p->right);
+        return LeftRotation(p);
+    }
+    return p;
+}
+template<class T>
+void AVL_Tree<T>::Remove(T info)
+{
+    root=DeleteTheItem(root,info);
+}
+template<class T>
+void AVL_Tree<T>::InOrderPublic()
+{
+    InOrder(root);
+}
+template<class T>
+void AVL_Tree<T>::PreOrderPublic()
+{
+    PreOrder(root);
+}
+template<class T>
+void AVL_Tree<T>::PostOrderPublic()
+{
+    PostOrder(root);
+}
+int main()
+{
+    AVL_Tree<int>tree1;
+    tree1.Insert(265);
+    tree1.Insert(24);
+    tree1.Insert(13);
+    tree1.Insert(345);
+    tree1.Insert(123);
+    tree1.Insert(324);
+    tree1.Remove(13);
+    tree1.InOrderPublic();
+    cout<<endl;
+    tree1.PreOrderPublic();
+    cout<<endl;
+    tree1.PostOrderPublic();
+    cout<<endl;
+    cout<<tree1.GetMax();
+    return 0;
+}
