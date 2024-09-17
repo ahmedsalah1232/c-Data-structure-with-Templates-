@@ -1,0 +1,97 @@
+#include <iostream>
+#include <map>
+#include <list>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <stdlib.h>
+#include <cmath>
+#include <utility>
+#include <memory.h>
+#include <bitset>
+#define ll long long
+using namespace std;
+const int Max_Size=26;
+
+class trie
+{
+    trie* letters[Max_Size];
+    bool isleaf;
+    int freq;
+public:
+    trie()
+    {
+        memset(letters,NULL,sizeof(letters));
+        isleaf=0;
+        freq=0;
+    }
+    void Insert(char* str)
+    {
+        if(*str=='\0')
+        {
+            if(isleaf==0)
+                isleaf=1;
+            else
+                freq++;
+        }
+        else
+        {
+            int index;
+            if(int(*str)>=65&&int(*str)<=90)
+                index=*str-'A';
+            else
+                index=*str-'a';
+            if(letters[index]==NULL)
+                letters[index]=new trie();
+            letters[index]->Insert(str+1);
+        }
+    }
+    bool WordExist(char *str)
+    {
+        if(*str=='\0')
+            return isleaf;
+        else
+        {
+            int index;
+            if(int(*str)>=65&&int(*str)<=90)
+                index=*str-'A';
+            else
+                index=*str-'a';
+            if(letters[index]==NULL)
+                return false;
+            letters[index]->WordExist(str+1);
+        }
+    }
+    bool IsFreq(char *str)
+    {
+        if(*str=='\0')
+        {
+            return freq>=1?1:0;
+        }
+        else
+        {
+            int index;
+            if(int(*str)>=65&&int(*str)<=90)
+                index=*str-'A';
+            else
+                index=*str-'a';
+            if(letters[index]==NULL)
+                return false;
+            letters[index]->IsFreq(str+1);
+        }
+    }
+};
+int main()
+{
+    trie a;
+    a.Insert("Ahmed");
+    a.Insert("ahmed");
+    a.Insert("anas");
+    a.Insert("hoda");
+    a.Insert("Hoda");
+    cout<<a.WordExist("khaled")<<endl;
+    cout<<a.WordExist("ahmed")<<endl;
+    cout<<a.IsFreq("ahmed")<<endl;
+    cout<<a.IsFreq("hoda")<<endl;
+    return 0;
+}
