@@ -1,0 +1,142 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+template <class T>
+class HashEntry
+{
+    int key;
+    T value;
+    HashEntry<T> *next;
+public:
+    HashEntry(int k,T v)
+    {
+        this->key=k;
+        this->value=v;
+        this->next=NULL;
+    }
+    int getkey()
+    {
+        return key;
+    }
+    void setvalue(T value)
+    {
+        this->value=value;
+    }
+    T getvalue()
+    {
+        return value;
+    }
+    void setnext(HashEntry* next)
+    {
+        this->next=next;
+    }
+    HashEntry* getnext()
+    {
+        return next;
+    }
+};
+const int HashTableSize=1000;
+template <class T>
+class HashMap
+{
+    HashEntry<T> **table;
+    int Hashfunction(int key)
+    {
+        int sum=0,a;
+        while(key>0)
+        {
+            a=key%10;
+            sum+=a;
+            key=key/10;
+        }
+        return sum%10;
+    }
+public:
+    HashMap()
+    {
+        table=new HashEntry<T> *[HashTableSize];
+        for(int i=0;i<HashTableSize;i++)
+        {
+            table[i]=NULL;
+        }
+    }
+    T get(int key)
+    {
+        int Hash=Hashfunction(key);
+        if(table[Hash]==NULL)
+            cout<<"there is no value with this key"<<endl;
+        else
+        {
+            HashEntry<T> *entry=table[Hash];
+            while(entry!=NULL&&entry->getkey()!=key)
+            {
+                entry=entry->getnext();
+            }
+            if(entry==NULL)
+                cout<<"there is no value"<<endl;
+            else
+                return entry->getvalue();
+        }
+    }
+    void Insert(int key,T value)
+    {
+        int Hash=Hashfunction(key);
+        HashEntry<T> *newentry=new HashEntry<T>(key,value);
+        if(table[Hash]==NULL)
+            table[Hash]=newentry;
+        else
+        {
+            HashEntry<T>* entry=table[Hash];
+            while(entry->getnext()!=NULL)
+            {
+                entry=entry->getnext();
+            }
+            entry->setnext(newentry);
+        }
+
+    }
+    void Remove(int key)
+    {
+        int Hash=Hashfunction(key);
+        if(table[Hash]!=NULL)
+        {
+            HashEntry<T>* preventry=NULL;
+            HashEntry<T>* entry=table[Hash];
+            while(entry->getnext()!=NULL&&entry->getkey()!=key)
+            {
+                preventry=entry;
+                entry=entry->getnext();
+            }
+            if(entry->getkey()==key)
+            {
+                if(preventry==NULL)
+                {
+                    HashEntry<T>* nextentry=entry->getnext();
+                    delete entry;
+                    table[Hash]=nextentry;
+                }
+                else
+                {
+                    HashEntry<T>* nextentry=entry->getnext();
+                    delete entry;
+                    preventry->setnext(nextentry);
+                }
+            }
+
+        }
+    }
+};
+int main()
+{
+    HashMap<string>T;
+    T.Insert(2459,"anas");
+    T.Insert(9252,"ahmed");
+    T.Insert(1251,"khaled");
+    T.Insert(7123,"hoda");
+    cout<<T.get(1251)<<endl;
+    cout<<T.get(7123)<<endl;
+    T.Remove(1251);
+    return 0;
+}
